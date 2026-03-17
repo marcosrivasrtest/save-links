@@ -363,7 +363,10 @@
       if (urlError.classList.contains('visible')) {
         urlError.classList.remove('visible');
       }
-      if (urlDuplicateError.classList.contains('visible')) {
+      var current = urlInput.value.trim();
+      if (current && loadLinks().some(function (l) { return l.url === current; })) {
+        urlDuplicateError.classList.add('visible');
+      } else {
         urlDuplicateError.classList.remove('visible');
       }
     });
