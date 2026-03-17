@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Save Links</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      color: #2d3a8c;
+    }
+
+    .form-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      margin-bottom: 2rem;
+    }
+
+    .field {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: #444;
+    }
+
+    input[type="text"],
+    input[type="url"] {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1.5px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="url"]:focus {
+      border-color: #2d3a8c;
+    }
+
+    .error-msg {
+      color: #dc2626;
+      font-size: 0.8rem;
+      margin-top: 0.3rem;
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 0.7rem;
+      background: #2d3a8c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button[type="submit"]:hover {
+      background: #1e2a6e;
+    }
+
+    .links-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .links-header h2 {
+      font-size: 1.1rem;
+      color: #2d3a8c;
+    }
+
+    .clear-btn {
+      background: none;
+      border: 1.5px solid #dc2626;
+      color: #dc2626;
+      border-radius: 6px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .clear-btn:hover {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #9ca3af;
+      padding: 2rem 0;
+      font-size: 0.95rem;
+    }
+
+    .link-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .link-item {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .link-info {
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .link-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .link-url {
+      color: #2d3a8c;
+      font-size: 0.85rem;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .link-url:hover {
+      text-decoration: underline;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #9ca3af;
+      font-size: 1.1rem;
+      line-height: 1;
+      flex-shrink: 0;
+      padding: 0.1rem 0.2rem;
+      transition: color 0.2s;
+    }
+
+    .delete-btn:hover {
+      color: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔗 Save Links</h1>
+
+    <div class="form-card">
+      <form id="link-form" novalidate>
+        <div class="field">
+          <label for="url-input">URL <span aria-hidden="true">*</span></label>
+          <input
+            type="url"
+            id="url-input"
+            placeholder="https://example.com"
+            autocomplete="off"
+            required
+            aria-required="true"
+          />
+          <p class="error-msg" id="url-error">Please enter a valid URL.</p>
+        </div>
+
+        <div class="field">
+          <label for="title-input">Title <span style="font-weight:400;color:#9ca3af">(optional)</span></label>
+          <input
+            type="text"
+            id="title-input"
+            placeholder="My favourite site"
+            autocomplete="off"
+          />
+        </div>
+
+        <button type="submit">Save Link</button>
+      </form>
+    </div>
+
+    <div class="links-header">
+      <h2>Saved Links</h2>
+      <button class="clear-btn" id="clear-btn" aria-label="Clear all links">Clear all</button>
+    </div>
+
+    <p class="empty-state" id="empty-state">No links saved yet.</p>
+    <ul class="link-list" id="link-list" aria-label="Saved links"></ul>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'saved-links';
+
+    const form = document.getElementById('link-form');
+    const urlInput = document.getElementById('url-input');
+    const titleInput = document.getElementById('title-input');
+    const urlError = document.getElementById('url-error');
+    const linkList = document.getElementById('link-list');
+    const emptyState = document.getElementById('empty-state');
+    const clearBtn = document.getElementById('clear-btn');
+
+    function loadLinks() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveLinks(links) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
+    }
+
+    function isValidUrl(value) {
+      try {
+        const url = new URL(value);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    }
+
+    function renderLinks() {
+      const links = loadLinks();
+      linkList.innerHTML = '';
+
+      if (links.length === 0) {
+        emptyState.style.display = 'block';
+        clearBtn.style.display = 'none';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      clearBtn.style.display = 'inline-block';
+
+      links.forEach(function (link) {
+        const li = document.createElement('li');
+        li.className = 'link-item';
+        li.dataset.id = link.id;
+
+        const info = document.createElement('div');
+        info.className = 'link-info';
+
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'link-title';
+        titleDiv.title = link.title || link.url;
+        titleDiv.textContent = link.title || link.url;
+
+        const anchor = document.createElement('a');
+        anchor.className = 'link-url';
+        anchor.href = link.url;
+        anchor.target = '_blank';
+        anchor.rel = 'noopener noreferrer';
+        anchor.textContent = link.url;
+
+        info.appendChild(titleDiv);
+        info.appendChild(anchor);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.setAttribute('aria-label', 'Delete link');
+        deleteBtn.title = 'Delete';
+        deleteBtn.textContent = '✕';
+        deleteBtn.addEventListener('click', function () {
+          deleteLink(link.id);
+        });
+
+        li.appendChild(info);
+        li.appendChild(deleteBtn);
+        linkList.appendChild(li);
+      });
+    }
+
+    function addLink(url, title) {
+      const links = loadLinks();
+      links.unshift({
+        id: Date.now() + '-' + Math.random().toString(36).slice(2),
+        url: url,
+        title: title.trim()
+      });
+      saveLinks(links);
+      renderLinks();
+    }
+
+    function deleteLink(id) {
+      const links = loadLinks().filter(function (l) { return l.id !== id; });
+      saveLinks(links);
+      renderLinks();
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const url = urlInput.value.trim();
+
+      if (!isValidUrl(url)) {
+        urlError.classList.add('visible');
+        urlInput.focus();
+        return;
+      }
+
+      urlError.classList.remove('visible');
+      addLink(url, titleInput.value);
+      form.reset();
+      urlInput.focus();
+    });
+
+    urlInput.addEventListener('input', function () {
+      if (urlError.classList.contains('visible')) {
+        urlError.classList.remove('visible');
+      }
+    });
+
+    clearBtn.addEventListener('click', function () {
+      if (confirm('Remove all saved links?')) {
+        saveLinks([]);
+        renderLinks();
+      }
+    });
+
+    renderLinks();
+  </script>
+</body>
+</html>
