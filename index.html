@@ -206,7 +206,8 @@
             required
             aria-required="true"
           />
-          <p class="error-msg" id="url-error">Please enter a valid URL.</p>
+          <p class="error-msg" id="url-error" role="alert" aria-live="polite">Please enter a valid URL.</p>
+          <p class="error-msg" id="url-duplicate-error" role="alert" aria-live="polite">This URL has already been saved.</p>
         </div>
 
         <div class="field">
@@ -239,6 +240,7 @@
     const urlInput = document.getElementById('url-input');
     const titleInput = document.getElementById('title-input');
     const urlError = document.getElementById('url-error');
+    const urlDuplicateError = document.getElementById('url-duplicate-error');
     const linkList = document.getElementById('link-list');
     const emptyState = document.getElementById('empty-state');
     const clearBtn = document.getElementById('clear-btn');
@@ -343,6 +345,15 @@
       }
 
       urlError.classList.remove('visible');
+      urlDuplicateError.classList.remove('visible');
+
+      const existing = loadLinks();
+      if (existing.some(function (l) { return l.url === url; })) {
+        urlDuplicateError.classList.add('visible');
+        urlInput.focus();
+        return;
+      }
+
       addLink(url, titleInput.value);
       form.reset();
       urlInput.focus();
@@ -351,6 +362,9 @@
     urlInput.addEventListener('input', function () {
       if (urlError.classList.contains('visible')) {
         urlError.classList.remove('visible');
+      }
+      if (urlDuplicateError.classList.contains('visible')) {
+        urlDuplicateError.classList.remove('visible');
       }
     });
 
